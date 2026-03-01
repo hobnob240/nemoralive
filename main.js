@@ -71,9 +71,16 @@
     if (href === path) a.setAttribute("aria-current", "page");
   });
 
-  // Contact form (mailto fallback)
-  const form = $("#contactForm");
-  if (form) {
+ // Contact form
+const form = $("#contactForm");
+if (form) {
+  const action = (form.getAttribute("action") || "").trim();
+  const isFormspree = /https:\/\/formspree\.io\/f\//i.test(action);
+
+  // ✅ If you're using Formspree, do NOT trigger mailto.
+  // Let the form submit normally (or your page-level JS can handle AJAX).
+  if (!isFormspree) {
+    // Legacy mailto fallback (only if action is NOT Formspree)
     form.addEventListener("submit", (e) => {
       e.preventDefault();
       const fd = new FormData(form);
@@ -87,7 +94,6 @@
         `Name: ${name}\nEmail: ${email}\nCompany: ${company}\n\nMessage:\n${message}\n`
       );
 
-      // Replace with your actual inbox when ready
       const to = form.dataset.to || "hello@nemora.agency";
       window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
     });
